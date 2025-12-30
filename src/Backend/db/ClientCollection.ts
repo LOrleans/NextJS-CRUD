@@ -8,7 +8,8 @@ import {
   setDoc, 
   deleteDoc, 
   QueryDocumentSnapshot, 
-  SnapshotOptions 
+  SnapshotOptions,
+  onSnapshot
 } from "firebase/firestore";
 import { app } from "../config"; // Importando a instância 'app' que configuramos antes
 import Client from "@/src/models/Client";
@@ -56,5 +57,12 @@ export default class ClientCollection implements ClientRespository {
   async getAll(): Promise<Client[]> {
     const snapshot = await getDocs(this.#getCollection());
     return snapshot.docs.map(doc => doc.data()) ?? [];
+  }
+
+  subscribe(callback: (clients: Client[]) => void) {
+    return onSnapshot(this.#getCollection(), (snapshot) => {
+      const clients = snapshot.docs.map(doc => doc.data());
+      callback(clients);
+    });
   }
 }
