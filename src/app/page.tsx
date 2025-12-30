@@ -6,22 +6,29 @@ import Table from "../components/Table";
 import Client from "../models/Client";
 import Button from "../components/Button";
 import Form from "../components/Form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import ClientRespository from "../models/ClientRepository";
+import ClientCollection from "../Backend/db/ClientCollection";
 
 export default function Home() {
+  const repo: ClientRespository = new ClientCollection()
+
   const [client, setClient] = useState<Client>(Client.void())
+  const [clients, setClients] = useState<Client[]>([])
   const [view, setView] = useState<'table' | 'form'>('table')
 
-  const clients = [
-    new Client('Ana', 34, '1'),
-    new Client('Bia', 45, '2'),
-    new Client('Carlos', 23, '3'),
-    new Client('Pedro', 53, '4'),
-  ]
+  useEffect(getAll, [])
 
-  function saveClient(client: Client){
-    console.log(client)
-    setView('table')
+  function getAll(){
+    repo.getAll().then(clients => {
+      setClients(clients)
+      setView('table')
+    })
+  }
+
+  async function saveClient(client: Client){
+    await repo.save(client)
+    getAll()
   }
 
   function clientMarked(client: Client){
@@ -29,8 +36,9 @@ export default function Home() {
     setView('form')
   }
 
-  function clientErased(client: Client){
-    console.log(`Excluir... ${client.name}`)
+  async function clientErased(client: Client){
+    await repo.delete(client)
+    getAll()
   }
 
   function newClient(){
@@ -44,7 +52,7 @@ export default function Home() {
         {view === 'table' ? (
           <>
             <div className="flex justify-end">
-              <Button color="green" className="mb-4" onClick={newClient}>New Client</Button>
+              <Button color="blue" className="mb-4" onClick={newClient}>New Client</Button>
             </div>
             <Table clients={clients} clientMarked={clientMarked} clientErased={clientErased}></Table>
           </>

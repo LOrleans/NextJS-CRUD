@@ -1,18 +1,18 @@
 import { NOMEM } from "dns"
 
 export default class Client {
-  #id: string
+  #id: string | undefined
   #name: string
   #age: number
 
-  constructor(name: string, age: number, id: string = '0'){
+  constructor(name: string, age: number, id?: string) {
     this.#name = name
-    this.#id = id
     this.#age = age
+    this.#id = id
   }
 
   static void(){
-    return new Client('', 0)
+    return new Client('', 0, undefined)
   }
 
   get id(){
